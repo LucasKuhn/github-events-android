@@ -1,0 +1,18 @@
+<resources>
+    <!-- Main -->
+    <string name="app_name">GithubEvents 🔔</string>
+
+    <!-- Buttons -->
+    <string name="action_settings">Configurações</string>
+
+    <!-- Settings -->
+    <string name="title_activity_settings">Configurações</string>
+
+    <string name="github_username_header">GitHub</string>
+    <string name="updates_header">Atualizações</string>
+
+    <string name="github_username_title">Nome do usuário</string>
+    <string name="auto_update_title">Atualizações automáticas</string>
+    <string name="auto_update_summary_off">Atualizar apenas manualmente</string>
+    <string name="update_frequency_title">Frequencia de atualização</string>
+</resources>
