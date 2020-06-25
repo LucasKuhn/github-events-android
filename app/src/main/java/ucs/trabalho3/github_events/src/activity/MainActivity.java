@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                 int statusCode = response.code();
                 List<Event> events = response.body();
                 //recyclerView.setAdapter(new PostsAdapter(posts, R.layout.list_item_post, getApplicationContext()));
-                Log.d("resposta", events.get(0).getId());
+                Log.d("resposta", events.get(0).getPayload().getAction());
             }
 
             @Override
