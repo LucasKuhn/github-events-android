@@ -10,6 +10,8 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.View;
@@ -23,6 +25,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import ucs.trabalho3.github_events.R;
+import ucs.trabalho3.github_events.src.adapter.EventsAdapter;
 import ucs.trabalho3.github_events.src.model.Event;
 import ucs.trabalho3.github_events.src.rest.ApiClient;
 import ucs.trabalho3.github_events.src.rest.ApiInterface;
@@ -35,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.eventsRecyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String GithubUser = preferences.getString("github_username", "Adicione seu usuário nas configurações");
@@ -59,8 +65,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
                 int statusCode = response.code();
                 List<Event> events = response.body();
-                //recyclerView.setAdapter(new PostsAdapter(posts, R.layout.list_item_post, getApplicationContext()));
-                Log.d("resposta", events.get(0).getPayload().getAction());
+                recyclerView.setAdapter(new EventsAdapter(events, R.layout.list_item_event, getApplicationContext()));
             }
 
             @Override
