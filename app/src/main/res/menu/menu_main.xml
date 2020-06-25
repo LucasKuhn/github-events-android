@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="ucs.trabalho3.github_events.activity.MainActivity">
+    tools:context="ucs.trabalho3.github_events.src.activity.MainActivity">
     <item
         android:id="@+id/action_settings"
         android:onClick="settingsButtonClick"

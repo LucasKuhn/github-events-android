@@ -1,4 +1,4 @@
-package ucs.trabalho3.github_events.activity;
+package ucs.trabalho3.github_events.src.activity;
 
 import android.os.Bundle;
 
