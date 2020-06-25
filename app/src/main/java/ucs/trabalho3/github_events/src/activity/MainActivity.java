@@ -1,4 +1,4 @@
-package ucs.trabalho3.github_events.activity;
+package ucs.trabalho3.github_events.src.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,13 +11,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceManager;
 
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import ucs.trabalho3.github_events.R;
-import ucs.trabalho3.github_events.activity.SettingsActivity;
+import ucs.trabalho3.github_events.src.model.Event;
+import ucs.trabalho3.github_events.src.rest.ApiClient;
+import ucs.trabalho3.github_events.src.rest.ApiInterface;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -41,6 +49,28 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        ApiInterface apiService =
+                ApiClient.getClient().create(ApiInterface.class);
+
+        Call<List<Event>> call = apiService.getReceivedEvents(GithubUser);
+        call.enqueue(new Callback<List<Event>>() {
+            @Override
+            public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
+                int statusCode = response.code();
+                List<Event> events = response.body();
+                //recyclerView.setAdapter(new PostsAdapter(posts, R.layout.list_item_post, getApplicationContext()));
+                Log.d("resposta", events.get(0).getId());
+            }
+
+            @Override
+            public void onFailure(Call<List<Event>> call, Throwable t) {
+                //mostraAlerta("Erro",t.toString());
+                // Log error here since request failed
+                Log.e("erro", t.toString());
+            }
+        });
+
     }
 
     @Override
