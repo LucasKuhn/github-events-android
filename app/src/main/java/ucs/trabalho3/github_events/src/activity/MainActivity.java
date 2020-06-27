@@ -49,8 +49,6 @@ public class MainActivity extends AppCompatActivity {
         final Intent serviceIntent = new Intent(this, ApiRequestService.class);
         startService(serviceIntent);
 
-        ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
