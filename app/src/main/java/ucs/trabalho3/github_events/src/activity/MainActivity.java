@@ -1,5 +1,10 @@
 package ucs.trabalho3.github_events.src.activity;
 
+import android.app.ActivityManager;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -29,6 +34,8 @@ import ucs.trabalho3.github_events.src.adapter.EventsAdapter;
 import ucs.trabalho3.github_events.src.model.Event;
 import ucs.trabalho3.github_events.src.rest.ApiClient;
 import ucs.trabalho3.github_events.src.rest.ApiInterface;
+import ucs.trabalho3.github_events.src.service.AlarmService;
+import ucs.trabalho3.github_events.src.service.ApiRequestService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,6 +43,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        killBackgroundProcesses();
+
+        final Intent serviceIntent = new Intent(this, ApiRequestService.class);
+        startService(serviceIntent);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -48,34 +61,47 @@ public class MainActivity extends AppCompatActivity {
         userNameTextview.setText(GithubUser);
 
         FloatingActionButton fab = findViewById(R.id.fab);
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                killBackgroundProcesses();
+                startService(serviceIntent);
+
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
 
-        ApiInterface apiService =
-                ApiClient.getClient().create(ApiInterface.class);
+        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
 
         Call<List<Event>> call = apiService.getReceivedEvents(GithubUser);
-        call.enqueue(new Callback<List<Event>>() {
-            @Override
-            public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
-                int statusCode = response.code();
-                List<Event> events = response.body();
-                recyclerView.setAdapter(new EventsAdapter(events, R.layout.list_item_event, getApplicationContext()));
-            }
 
-            @Override
-            public void onFailure(Call<List<Event>> call, Throwable t) {
-                //mostraAlerta("Erro",t.toString());
-                // Log error here since request failed
-                Log.e("erro", t.toString());
-            }
-        });
+        if ( preferences.contains("github_username") ) {
+            call.enqueue(new Callback<List<Event>>() {
+                @Override
+                public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
+                    int statusCode = response.code();
+                    List<Event> events = response.body();
+                    recyclerView.setAdapter(new EventsAdapter(events, R.layout.list_item_event, getApplicationContext()));
+                }
 
+                @Override
+                public void onFailure(Call<List<Event>> call, Throwable t) {
+                    //mostraAlerta("Erro",t.toString());
+                    // Log error here since request failed
+                    Log.e("erro", t.toString());
+                }
+            });
+        }
+
+    }
+
+    private void killBackgroundProcesses() {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        manager.killBackgroundProcesses("ucs.trabalho3.github_events");
+        manager.killBackgroundProcesses("ucs.trabalho3.github_events");
+        manager.killBackgroundProcesses("ucs.trabalho3.github_events");
     }
 
     @Override
