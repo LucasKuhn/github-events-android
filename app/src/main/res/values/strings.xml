@@ -15,4 +15,7 @@
     <string name="auto_update_title">Atualizações automáticas</string>
     <string name="auto_update_summary_off">Atualizar apenas manualmente</string>
     <string name="update_frequency_title">Frequencia de atualização</string>
+
+    <string name="channel_name">GitHub Events app</string>
+    <string name="channel_description">GitHub Events notification</string>
 </resources>

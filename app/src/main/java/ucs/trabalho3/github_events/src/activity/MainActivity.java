@@ -2,11 +2,14 @@ package ucs.trabalho3.github_events.src.activity;
 
 import android.app.ActivityManager;
 import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -34,15 +37,18 @@ import ucs.trabalho3.github_events.src.adapter.EventsAdapter;
 import ucs.trabalho3.github_events.src.model.Event;
 import ucs.trabalho3.github_events.src.rest.ApiClient;
 import ucs.trabalho3.github_events.src.rest.ApiInterface;
-import ucs.trabalho3.github_events.src.service.AlarmService;
 import ucs.trabalho3.github_events.src.service.ApiRequestService;
 
 public class MainActivity extends AppCompatActivity {
+
+    public static final String CHANNEL_ID = "github_events";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        createNotificationChannel();
 
         killBackgroundProcesses();
 
@@ -88,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<List<Event>> call, Throwable t) {
-                    //mostraAlerta("Erro",t.toString());
                     // Log error here since request failed
                     Log.e("erro", t.toString());
                 }
@@ -129,5 +134,21 @@ public class MainActivity extends AppCompatActivity {
     public void settingsButtonClick(MenuItem item) {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 }
