@@ -42,6 +42,9 @@ import ucs.trabalho3.github_events.src.service.ApiRequestService;
 public class MainActivity extends AppCompatActivity {
 
     public static final String CHANNEL_ID = "github_events";
+    public static Intent serviceIntent;
+    public static RecyclerView recyclerView;
+    
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,39 +55,43 @@ public class MainActivity extends AppCompatActivity {
 
         killBackgroundProcesses();
 
-        final Intent serviceIntent = new Intent(this, ApiRequestService.class);
+        serviceIntent = new Intent(this, ApiRequestService.class);
         startService(serviceIntent);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.eventsRecyclerView);
+        recyclerView = (RecyclerView) findViewById(R.id.eventsRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String GithubUser = preferences.getString("github_username", "Adicione seu usuário nas configurações");
-        TextView userNameTextview = findViewById(R.id.textView);
-        userNameTextview.setText(GithubUser);
+        TextView userNameTextView = findViewById(R.id.textView);
+        userNameTextView.setText(GithubUser);
+
+
+        if ( preferences.contains("github_username") ) {
+            GithubUser = preferences.getString("github_username", "");
+            CallApi(GithubUser);
+        }
 
         FloatingActionButton fab = findViewById(R.id.fab);
-
+        final String finalGithubUser = GithubUser;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                killBackgroundProcesses();
-                startService(serviceIntent);
-
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                CallApi(finalGithubUser);
+                Snackbar.make(view, "List updated", Snackbar.LENGTH_SHORT).show();
             }
         });
+    }
 
-        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+    public void CallApi(String GithubUser) {
+        ApiInterface apiService = ApiClient.getClient(getApplicationContext()).create(ApiInterface.class);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         Call<List<Event>> call = apiService.getReceivedEvents(GithubUser);
-
-        if ( preferences.contains("github_username") ) {
-            call.enqueue(new Callback<List<Event>>() {
+                    call.enqueue(new Callback<List<Event>>() {
                 @Override
                 public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
                     int statusCode = response.code();
@@ -98,14 +105,10 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("erro", t.toString());
                 }
             });
-        }
-
     }
 
     private void killBackgroundProcesses() {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        manager.killBackgroundProcesses("ucs.trabalho3.github_events");
-        manager.killBackgroundProcesses("ucs.trabalho3.github_events");
         manager.killBackgroundProcesses("ucs.trabalho3.github_events");
     }
 

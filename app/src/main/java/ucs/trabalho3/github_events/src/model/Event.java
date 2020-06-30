@@ -76,5 +76,12 @@ public class Event {
         return ago.toString();
     }
 
+    public String getUrl() {
+        if (type.equals("PullRequestEvent")) {
+            return getPayload().getPullRequest().getHtmlUrl();
+        }
+        return "";
+    }
+
 }
 
