@@ -24,7 +24,7 @@ public class WebViewActivity extends AppCompatActivity {
         String url = getIntent().getStringExtra("url");
         myWebView.loadUrl(url);
 
-        //Habilitando o JavaScript
+        // Enable JS on page
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
     }
