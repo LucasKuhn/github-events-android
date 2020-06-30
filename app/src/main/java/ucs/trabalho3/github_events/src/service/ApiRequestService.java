@@ -72,43 +72,47 @@ public class ApiRequestService extends Service {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
 
-                    if ( preferences.contains("github_username") ) {
-                        String githubUser = preferences.getString("github_username", "username");
-                        Call<List<Event>> call = apiService.getReceivedEvents(githubUser);
-
-                        call.enqueue(new Callback<List<Event>>() {
-                            @Override
-                            public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
-                                int statusCode = response.code();
-                                List<Event> events = response.body();
-
-                                String eventId = events.get(0).getId();
-                                String lastEventId = preferences.getString("last_event_id", "id");
-
-                                if (eventId.equals(lastEventId) == false) {
-                                    editor.putString("last_event_id", eventId);
-                                    editor.commit();
-
-                                    NotificationHelper.showNotification(getApplicationContext(), events.get(0).getType(), events.get(0).getActor().getLogin());
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<List<Event>> call, Throwable t) {
-                                // Log error here since request failed
-                                Log.e("erro", t.toString());
-                            }
-                        });
-                    }
-
+                    CallApi();
 
                     // display toast
                     Log.w("SERVICE", "Count " + count);
                     Toast.makeText(ApiRequestService.this, "Service is running " + count, Toast.LENGTH_SHORT).show();
                 }
             });
+        }
+
+        public void CallApi() {
+            if ( preferences.contains("github_username") ) {
+                ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+                String githubUser = preferences.getString("github_username", "username");
+                String ETag = preferences.getString("github_etag", "");
+                Call<List<Event>> call = apiService.getReceivedEvents(githubUser, ETag);
+
+                call.enqueue(new Callback<List<Event>>() {
+                    @Override
+                    public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
+                        int statusCode = response.code();
+                        List<Event> events = response.body();
+
+                        String eventId = events.get(0).getId();
+                        String lastEventId = preferences.getString("last_event_id", "id");
+
+                        if (eventId.equals(lastEventId) == false) {
+                            editor.putString("last_event_id", eventId);
+                            editor.commit();
+
+                            NotificationHelper.showNotification(getApplicationContext(), events.get(0).getType(), events.get(0).getActor().getLogin());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<Event>> call, Throwable t) {
+                        // Log error here since request failed
+                        Log.e("erro", t.toString());
+                    }
+                });
+            }
         }
     }
 

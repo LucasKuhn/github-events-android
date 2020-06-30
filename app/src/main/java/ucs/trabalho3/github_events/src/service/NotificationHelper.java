@@ -1,6 +1,8 @@
 package ucs.trabalho3.github_events.src.service;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -18,6 +20,12 @@ public class NotificationHelper {
                 .setContentTitle(title)
                 .setContentText(actor)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
+                new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+
+        mBuilder.setContentIntent(contentIntent);
+
 
         NotificationManagerCompat mNotificationManager = NotificationManagerCompat.from(context);
         mNotificationManager.notify(1, mBuilder.build());
