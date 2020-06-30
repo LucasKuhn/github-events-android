@@ -84,15 +84,13 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(view, "List updated", Snackbar.LENGTH_SHORT).show();
             }
         });
-
     }
 
     public void CallApi(String GithubUser) {
-        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+        ApiInterface apiService = ApiClient.getClient(getApplicationContext()).create(ApiInterface.class);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String ETag = preferences.getString("github_username", "Adicione seu usuário nas configurações");
 
-        Call<List<Event>> call = apiService.getReceivedEvents(GithubUser, ETag);
+        Call<List<Event>> call = apiService.getReceivedEvents(GithubUser);
                     call.enqueue(new Callback<List<Event>>() {
                 @Override
                 public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {

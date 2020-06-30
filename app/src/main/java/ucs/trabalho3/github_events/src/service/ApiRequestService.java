@@ -29,7 +29,7 @@ import ucs.trabalho3.github_events.src.rest.ApiInterface;
 
 public class ApiRequestService extends Service {
 
-    public static final int interval = 120000;  //interval between two services in MS ( 2 minutes )
+    public static final int interval = 10000;  //interval between two services in MS ( 10 seconds )
     private Handler mHandler = new Handler();   //run on another Thread to avoid crash
     private Timer mTimer = new Timer();    //timer handling
     public int count = 0;
@@ -84,10 +84,10 @@ public class ApiRequestService extends Service {
 
         public void CallApi() {
             if ( preferences.contains("github_username") ) {
-                ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+                ApiInterface apiService = ApiClient.getClient(getApplicationContext()).create(ApiInterface.class);
+
                 String githubUser = preferences.getString("github_username", "username");
-                String ETag = preferences.getString("github_etag", "");
-                Call<List<Event>> call = apiService.getReceivedEvents(githubUser, ETag);
+                Call<List<Event>> call = apiService.getReceivedEvents(githubUser);
 
                 call.enqueue(new Callback<List<Event>>() {
                     @Override

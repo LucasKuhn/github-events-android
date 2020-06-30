@@ -14,5 +14,5 @@ import ucs.trabalho3.github_events.src.model.Event;
 
 public interface ApiInterface {
     @GET("users/{username}/received_events")
-    Call<List<Event>> getReceivedEvents(@Path("username") String username, @Header("If-None-Match") String ETag);
+    Call<List<Event>> getReceivedEvents(@Path("username") String username);
 }
