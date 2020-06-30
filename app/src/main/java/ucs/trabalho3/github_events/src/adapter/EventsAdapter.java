@@ -1,6 +1,7 @@
 package ucs.trabalho3.github_events.src.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -18,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 import ucs.trabalho3.github_events.R;
+import ucs.trabalho3.github_events.src.activity.WebViewActivity;
 import ucs.trabalho3.github_events.src.model.Event;
 
 public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.PostViewHolder>  {
@@ -26,7 +28,7 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.PostViewHo
     private int rowLayout;
     private Context context;
 
-    public static class PostViewHolder extends RecyclerView.ViewHolder {
+    public class PostViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         LinearLayout eventsLayout;
         TextView eventType;
         TextView eventActor;
@@ -34,10 +36,18 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.PostViewHo
 
         public PostViewHolder(View v) {
             super(v);
+            v.setOnClickListener(this);
             eventsLayout = (LinearLayout) v.findViewById(R.id.events_layout);
             eventType = (TextView) v.findViewById(R.id.eventType);
             eventActor = (TextView) v.findViewById(R.id.eventActor);
             eventTime = (TextView) v.findViewById(R.id.eventTime);
+        }
+
+        public void onClick(View view) {
+            Intent intent = new Intent(view.getContext(), WebViewActivity.class);
+            String url = events.get(getLayoutPosition()).getUrl();
+            intent.putExtra("url", url);
+            view.getContext().startActivity(intent);
         }
     }
 
@@ -48,8 +58,7 @@ public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.PostViewHo
     }
 
     @Override
-    public PostViewHolder onCreateViewHolder(ViewGroup parent,
-                                             int viewType) {
+    public PostViewHolder onCreateViewHolder(ViewGroup parent,int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(rowLayout, parent, false);
         return new PostViewHolder(view);
     }

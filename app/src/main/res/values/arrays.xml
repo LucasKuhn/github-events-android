@@ -7,8 +7,8 @@
     </string-array>
 
     <string-array name="update_frequency_values">
-        <item>1</item>
-        <item>5</item>
-        <item>30</item>
+        <item>60000</item>
+        <item>300000</item>
+        <item>1800000</item>
     </string-array>
 </resources>

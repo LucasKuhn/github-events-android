@@ -29,7 +29,7 @@ import ucs.trabalho3.github_events.src.rest.ApiInterface;
 
 public class ApiRequestService extends Service {
 
-    public static final int interval = 60000;  //interval between two services in MS ( 1 minute )
+    public static final int interval = 120000;  //interval between two services in MS ( 1 minute )
     private Handler mHandler = new Handler();   //run on another Thread to avoid crash
     private Timer mTimer = new Timer();    //timer handling
     public int count = 0;
