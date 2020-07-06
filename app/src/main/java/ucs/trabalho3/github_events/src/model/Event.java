@@ -9,8 +9,11 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import ucs.trabalho3.github_events.src.activity.MainActivity;
 
 public class Event {
 
@@ -23,6 +26,9 @@ public class Event {
     @SerializedName("actor")
     @Expose
     private Actor actor;
+    @SerializedName("repo")
+    @Expose
+    private Repo repo;
     @SerializedName("payload")
     @Expose
     private Payload payload;
@@ -54,6 +60,14 @@ public class Event {
         this.actor = actor;
     }
 
+    public Repo getRepo() {
+        return repo;
+    }
+
+    public void setRepo(Repo repo) {
+        this.repo = repo;
+    }
+
     public Payload getPayload() {
         return payload;
     }
@@ -79,6 +93,9 @@ public class Event {
     public String getUrl() {
         if (type.equals("PullRequestEvent")) {
             return getPayload().getPullRequest().getHtmlUrl();
+        }
+        else if (type.equals("ForkEvent")) {
+            return "https://github.com/"+getRepo().getName();
         }
         return "";
     }

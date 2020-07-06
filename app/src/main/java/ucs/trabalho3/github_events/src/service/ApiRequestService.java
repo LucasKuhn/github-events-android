@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -18,6 +19,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import ucs.trabalho3.github_events.R;
+import ucs.trabalho3.github_events.src.activity.MainActivity;
 import ucs.trabalho3.github_events.src.adapter.EventsAdapter;
 import ucs.trabalho3.github_events.src.model.Event;
 import ucs.trabalho3.github_events.src.rest.ApiClient;
@@ -86,24 +88,36 @@ public class ApiRequestService extends Service {
             if ( preferences.contains("github_username") ) {
                 ApiInterface apiService = ApiClient.getClient(getApplicationContext()).create(ApiInterface.class);
 
-                String githubUser = preferences.getString("github_username", "username");
+                final String githubUser = preferences.getString("github_username", "username");
                 Call<List<Event>> call = apiService.getReceivedEvents(githubUser);
 
                 call.enqueue(new Callback<List<Event>>() {
                     @Override
                     public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
                         int statusCode = response.code();
-                        List<Event> events = response.body();
+                        if (statusCode == 200) {
+                            List<Event> events = response.body();
 
-                        String eventId = events.get(0).getId();
-                        String lastEventId = preferences.getString("last_event_id", "id");
+                            List<Event> filteredEvents = EventsAdapter.filterEvents(events, githubUser);
 
-                        if (eventId.equals(lastEventId) == false) {
-                            editor.putString("last_event_id", eventId);
-                            editor.commit();
+                            if (filteredEvents.size() != 0){
+                                String eventId = filteredEvents.get(0).getId();
+                                String lastEventId = preferences.getString("last_event_id", "id");
 
-                            NotificationHelper.showNotification(getApplicationContext(), events.get(0).getType(), events.get(0).getActor().getLogin());
+                                if (eventId.equals(lastEventId) == false) {
+                                    editor.putString("last_event_id", eventId);
+                                    editor.commit();
+
+                                    String eventType = filteredEvents.get(0).getType().replace("Event", " Event");
+                                    String actor = filteredEvents.get(0).getActor().getLogin();
+                                    String avatarUrl = filteredEvents.get(0).getActor().getAvatarUrl();
+
+                                    NotificationHelper.showNotification(getApplicationContext(), eventType, actor, avatarUrl);
+                                }
+                            }
+
                         }
+
                     }
 
                     @Override
@@ -113,6 +127,28 @@ public class ApiRequestService extends Service {
                     }
                 });
             }
+        }
+
+        public List<Event> filterEvents(List<Event> events) {
+
+            List<Event> filteredEvents = new ArrayList<>();
+            for (Event event : events) {
+                if (event.getType().equals("PullRequestEvent") || event.getType().equals("ForkEvent")) {
+                    String repoName = event.getRepo().getName();
+                    int indexSlash = repoName.indexOf("/");
+                    String repoOwner = repoName.substring(0,indexSlash);
+                    String githubUser = preferences.getString("github_username", "username");
+
+                    if (repoOwner.equals(githubUser)) {
+                        filteredEvents.add(event);
+                    }
+                }
+                else if(event.getType().equals("CommitCommentEvent") || event.getType().equals("IssueCommentEvent") || event.getType().equals("PullRequestReviewCommentEvent")) {
+                    filteredEvents.add(event);
+                }
+            }
+
+            return filteredEvents;
         }
     }
 

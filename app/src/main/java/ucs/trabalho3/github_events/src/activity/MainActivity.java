@@ -1,11 +1,8 @@
 package ucs.trabalho3.github_events.src.activity;
 
 import android.app.ActivityManager;
-import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,6 +12,7 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceManager;
@@ -44,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String CHANNEL_ID = "github_events";
     public static Intent serviceIntent;
     public static RecyclerView recyclerView;
-    
+    public static String GithubUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String GithubUser = preferences.getString("github_username", "Adicione seu usuário nas configurações");
+        GithubUser = preferences.getString("github_username", "Adicione seu usuário nas configurações");
         TextView userNameTextView = findViewById(R.id.textView);
         userNameTextView.setText(GithubUser);
 
@@ -86,17 +84,24 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void CallApi(String GithubUser) {
+    public void CallApi(final String GithubUser) {
         ApiInterface apiService = ApiClient.getClient(getApplicationContext()).create(ApiInterface.class);
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         Call<List<Event>> call = apiService.getReceivedEvents(GithubUser);
                     call.enqueue(new Callback<List<Event>>() {
+                @RequiresApi(api = Build.VERSION_CODES.N)
                 @Override
                 public void onResponse(Call<List<Event>> call, Response<List<Event>> response) {
                     int statusCode = response.code();
-                    List<Event> events = response.body();
-                    recyclerView.setAdapter(new EventsAdapter(events, R.layout.list_item_event, getApplicationContext()));
+
+                    if (statusCode == 200) {
+                        List<Event> events = response.body();
+                        List<Event> filteredEvents = EventsAdapter.filterEvents(events, GithubUser);
+
+                        if (filteredEvents.size() != 0) {
+                            recyclerView.setAdapter(new EventsAdapter(filteredEvents, R.layout.list_item_event, getApplicationContext(), GithubUser));
+                        }
+                    }
                 }
 
                 @Override
